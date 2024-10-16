@@ -55,6 +55,21 @@ public class progress : MonoBehaviour
         public int id;
     }
 
+    // Nuevo método para borrar el PROGRESS_ID_KEY del almacenamiento
+    public void ClearProgressId()
+    {
+        if (PlayerPrefs.HasKey(PROGRESS_ID_KEY))
+        {
+            PlayerPrefs.DeleteKey(PROGRESS_ID_KEY);
+            PlayerPrefs.Save();
+            Debug.Log("Progress ID cleared from storage.");
+        }
+        else
+        {
+            Debug.Log("No Progress ID found in storage.");
+        }
+    }
+
     // Método para ser asignado al botón
     public void OnCreateProgressButtonClick()
     {
