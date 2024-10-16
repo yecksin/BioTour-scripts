@@ -17,7 +17,7 @@ public class Config : MonoBehaviour
 
     public void OnManageSettingsButtonClick()
     {
-        StartCoroutine(ManageUserSettingsCoroutine(10, 55));
+        StartCoroutine(ManageUserSettingsCoroutine(10, 80));
     }
 
     private IEnumerator ManageUserSettingsCoroutine(int soundLevel, int musicLevel)
