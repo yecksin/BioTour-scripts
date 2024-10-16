@@ -8,7 +8,7 @@ public static class Request
     private const string ACCESS_TOKEN_KEY = "AccessToken";
     private const string API_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ3bGtkanBjZmNkaWltbWtxeHJ4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MjgyNjgxNzMsImV4cCI6MjA0Mzg0NDE3M30.rEzatvw8q--aFLcx86SQsSlYsZHYVQTUPkVh2VJxWCU";
 
-    public static async Task<string> SendRequest(string url, string method, string body = null, bool requiresAuth = true)
+    public static async Task<string> SendRequest(string url, string method, string body = null,  bool extractFirstElement = false, bool requiresAuth = true)
     {
         using (UnityWebRequest webRequest = new UnityWebRequest(url, method))
         {
@@ -23,11 +23,7 @@ public static class Request
             webRequest.SetRequestHeader("Content-Type", "application/json");
             webRequest.SetRequestHeader("apikey", API_KEY);
             
-            bool isModifyingRequest = method.Equals("POST", System.StringComparison.OrdinalIgnoreCase) ||
-                                      method.Equals("PATCH", System.StringComparison.OrdinalIgnoreCase) ||
-                                      method.Equals("PUT", System.StringComparison.OrdinalIgnoreCase);
-
-            if (isModifyingRequest)
+            if (extractFirstElement)
             {
                 webRequest.SetRequestHeader("Prefer", "return=representation");
             }
@@ -56,9 +52,8 @@ public static class Request
             else
             {
                 string response = webRequest.downloadHandler.text;
-                if (isModifyingRequest)
+                if (extractFirstElement)
                 {
-                    // Para POST, PATCH, PUT, tomar solo el primer elemento del array
                     return ExtractFirstElementFromJsonArray(response);
                 }
                 return response;

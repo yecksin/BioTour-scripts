@@ -12,7 +12,7 @@ public class progress : MonoBehaviour
         string userId = "64d714c5-f962-43e5-89a7-89b5633226c1"; // Asegúrate de obtener el ID de usuario correcto
         string jsonBody = $"{{ \"completed\": false, \"user_id\": \"{userId}\" }}";
 
-        string response = await Request.SendRequest(API_URL, "POST", jsonBody);
+        string response = await Request.SendRequest(API_URL, "POST", jsonBody, true);
 
         if (response != null)
         {
