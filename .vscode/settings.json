@@ -51,5 +51,5 @@
         "temp/": true,
         "Temp/": true
     },
-    "dotnet.defaultSolution": "BioTours-scripst.sln"
+    "dotnet.defaultSolution": "BioTour-scripts.sln"
 }

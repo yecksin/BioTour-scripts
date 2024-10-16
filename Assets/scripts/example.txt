@@ -1,0 +1,48 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.Networking; // Add this line
+
+public class login : MonoBehaviour
+{
+    // Start is called before the first frame update
+    void Start()
+    {
+        
+    }
+
+    // Update is called once per frame
+    void Update()
+    {
+        
+    }
+
+
+    public void onLoginButtonClick()
+    {
+        Debug.Log("*****Login button clicked*****");
+        // consume this get request https://jsonplaceholder.typicode.com/users
+        // and print the response
+        StartCoroutine(GetRequest("https://jsonplaceholder.typicode.com/users"));
+
+    }
+
+    IEnumerator GetRequest(string url)
+    {
+        using (UnityWebRequest webRequest = UnityWebRequest.Get(url))
+        {
+            yield return webRequest.SendWebRequest();
+
+            if (webRequest.result != UnityWebRequest.Result.Success)
+            {
+                Debug.LogError("Error: " + webRequest.error);
+            }
+            else
+            {
+                Debug.Log("Response: " + webRequest.downloadHandler.text);
+            }
+        }
+    }
+
+
+}
