@@ -18,7 +18,7 @@ public class Config : MonoBehaviour
 
     public void OnManageSettingsButtonClick()
     {
-        StartCoroutine(ManageUserSettingsCoroutine(503, 55));
+        StartCoroutine(ManageUserSettingsCoroutine(10, 55));
     }
 
     private IEnumerator ManageUserSettingsCoroutine(int soundLevel, int musicLevel)
@@ -85,6 +85,51 @@ public class Config : MonoBehaviour
         else
         {
             Debug.LogError("No settings found to update.");
+        }
+    }
+
+    public void OnGetUserSettingsButtonClick()
+    {
+        StartCoroutine(GetUserSettingsCoroutine());
+    }
+
+    private IEnumerator GetUserSettingsCoroutine()
+    {
+        Task<UserSettings[]> task = GetUserSettings();
+        yield return new WaitUntil(() => task.IsCompleted);
+
+        if (task.Exception != null)
+        {
+            Debug.LogError($"Error getting user settings: {task.Exception.Message}");
+        }
+        else
+        {
+            UserSettings[] settings = task.Result;
+            if (settings != null)
+            {
+                foreach (var setting in settings)
+                {
+                    Debug.Log($"ID: {setting.id}, Sound Level: {setting.sound_level}, Music Level: {setting.music_level}");
+                }
+            }
+        }
+    }
+
+    private async Task<UserSettings[]> GetUserSettings()
+    {
+        string getUrl = $"{API_URL}?user_id=eq.{USER_ID}&select=*";
+        string response = await Request.SendRequest(getUrl, "GET", null);
+
+        if (!string.IsNullOrEmpty(response) && response != "[]")
+        {
+            UserSettings[] settings = JsonHelper.FromJson<UserSettings>(response);
+            Debug.Log("User settings retrieved successfully.");
+            return settings;
+        }
+        else
+        {
+            Debug.LogError("Failed to retrieve user settings or no settings found.");
+            return null;
         }
     }
 }
