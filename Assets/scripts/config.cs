@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 public class Config : MonoBehaviour
 {
     private const string API_URL = "https://vwlkdjpcfcdiimmkqxrx.supabase.co/rest/v1/user_settings";
-    private const string USER_ID = "64d714c5-f962-43e5-89a7-89b5633226c1";
 
     [System.Serializable]
     private class UserSettings
@@ -34,7 +33,8 @@ public class Config : MonoBehaviour
 
     private async Task ManageUserSettings(int soundLevel, int musicLevel)
     {
-        string getUrl = $"{API_URL}?user_id=eq.{USER_ID}&select=*";
+        string userId = login.GetUserId();
+        string getUrl = $"{API_URL}?user_id=eq.{userId}&select=*";
         string response = await Request.SendRequest(getUrl, "GET", null);
 
         if (string.IsNullOrEmpty(response) || response == "[]")
@@ -49,7 +49,8 @@ public class Config : MonoBehaviour
 
     private async Task CreateUserSettings(int soundLevel, int musicLevel)
     {
-        string jsonBody = $"{{\"sound_level\":{soundLevel},\"music_level\":{musicLevel},\"user_id\":\"{USER_ID}\"}}";
+        string userId = login.GetUserId();
+        string jsonBody = $"{{\"sound_level\":{soundLevel},\"music_level\":{musicLevel},\"user_id\":\"{userId}\"}}";
         string response = await Request.SendRequest(API_URL, "POST", jsonBody);
 
         if (response != null)
@@ -68,8 +69,9 @@ public class Config : MonoBehaviour
         if (settings != null && settings.Length > 0)
         {
             int settingsId = settings[0].id;
+            string userId = login.GetUserId();
             string updateUrl = $"{API_URL}?id=eq.{settingsId}";
-            string jsonBody = $"{{\"sound_level\":{soundLevel},\"music_level\":{musicLevel},\"user_id\":\"{USER_ID}\"}}";
+            string jsonBody = $"{{\"sound_level\":{soundLevel},\"music_level\":{musicLevel},\"user_id\":\"{userId}\"}}";
 
             string response = await Request.SendRequest(updateUrl, "PATCH", jsonBody);
 
@@ -117,7 +119,9 @@ public class Config : MonoBehaviour
 
     private async Task<UserSettings[]> GetUserSettings()
     {
-        string getUrl = $"{API_URL}?user_id=eq.{USER_ID}&select=*";
+                    Debug.Log(login.GetUserId());
+
+        string getUrl = $"{API_URL}?user_id=eq.{login.GetUserId()}&select=*";
         string response = await Request.SendRequest(getUrl, "GET", null);
 
         if (!string.IsNullOrEmpty(response) && response != "[]")

@@ -4,6 +4,7 @@ using System;
 public class login : MonoBehaviour
 {
     private const string TOKEN_EXPIRY_KEY = "TokenExpiryTime";
+    private const string USER_ID_KEY = "UserId";
     private const int EXPIRY_WARNING_MINUTES = 30;
 
     public async void onLoginButtonClick()
@@ -32,6 +33,9 @@ public class login : MonoBehaviour
             // Save expiry time
             long expiryTime = DateTimeOffset.UtcNow.ToUnixTimeSeconds() + loginResponse.expires_in;
             PlayerPrefs.SetString(TOKEN_EXPIRY_KEY, expiryTime.ToString());
+
+            // Save user ID
+            PlayerPrefs.SetString(USER_ID_KEY, loginResponse.user.id);
             PlayerPrefs.Save();
 
             Debug.Log($"Token will expire at: {DateTimeOffset.FromUnixTimeSeconds(expiryTime).LocalDateTime}");
@@ -40,6 +44,11 @@ public class login : MonoBehaviour
         {
             Debug.LogError("Error saving access token: " + e.Message);
         }
+    }
+
+    public static string GetUserId()
+    {
+        return PlayerPrefs.GetString(USER_ID_KEY, "");
     }
 
     // Método para ser llamado por un botón
