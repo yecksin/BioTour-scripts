@@ -18,7 +18,7 @@ public class Config : MonoBehaviour
 
     public void OnManageSettingsButtonClick()
     {
-        StartCoroutine(ManageUserSettingsCoroutine(50, 55));
+        StartCoroutine(ManageUserSettingsCoroutine(503, 55));
     }
 
     private IEnumerator ManageUserSettingsCoroutine(int soundLevel, int musicLevel)
@@ -35,7 +35,7 @@ public class Config : MonoBehaviour
     private async Task ManageUserSettings(int soundLevel, int musicLevel)
     {
         string getUrl = $"{API_URL}?user_id=eq.{USER_ID}&select=*";
-        string response = await Request.SendRequest(getUrl, "GET", null, true);
+        string response = await Request.SendRequest(getUrl, "GET", null);
 
         if (string.IsNullOrEmpty(response) || response == "[]")
         {
@@ -50,7 +50,7 @@ public class Config : MonoBehaviour
     private async Task CreateUserSettings(int soundLevel, int musicLevel)
     {
         string jsonBody = $"{{\"sound_level\":{soundLevel},\"music_level\":{musicLevel},\"user_id\":\"{USER_ID}\"}}";
-        string response = await Request.SendRequest(API_URL, "POST", jsonBody, true);
+        string response = await Request.SendRequest(API_URL, "POST", jsonBody);
 
         if (response != null)
         {
@@ -64,14 +64,14 @@ public class Config : MonoBehaviour
 
     private async Task UpdateUserSettings(int soundLevel, int musicLevel, string getResponse)
     {
-        UserSettings[] settings = JsonUtility.FromJson<UserSettings[]>(getResponse);
+        UserSettings[] settings = JsonHelper.FromJson<UserSettings>(getResponse);
         if (settings != null && settings.Length > 0)
         {
             int settingsId = settings[0].id;
             string updateUrl = $"{API_URL}?id=eq.{settingsId}";
             string jsonBody = $"{{\"sound_level\":{soundLevel},\"music_level\":{musicLevel},\"user_id\":\"{USER_ID}\"}}";
 
-            string response = await Request.SendRequest(updateUrl, "PATCH", jsonBody, true);
+            string response = await Request.SendRequest(updateUrl, "PATCH", jsonBody);
 
             if (response != null)
             {
@@ -86,5 +86,21 @@ public class Config : MonoBehaviour
         {
             Debug.LogError("No settings found to update.");
         }
+    }
+}
+
+public static class JsonHelper
+{
+    public static T[] FromJson<T>(string json)
+    {
+        string newJson = "{\"Items\":" + json + "}";
+        Wrapper<T> wrapper = JsonUtility.FromJson<Wrapper<T>>(newJson);
+        return wrapper.Items;
+    }
+
+    [System.Serializable]
+    private class Wrapper<T>
+    {
+        public T[] Items;
     }
 }
