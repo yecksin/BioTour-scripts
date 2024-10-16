@@ -23,6 +23,15 @@ public static class Request
             webRequest.SetRequestHeader("Content-Type", "application/json");
             webRequest.SetRequestHeader("apikey", API_KEY);
             
+            bool isModifyingRequest = method.Equals("POST", System.StringComparison.OrdinalIgnoreCase) ||
+                                      method.Equals("PATCH", System.StringComparison.OrdinalIgnoreCase) ||
+                                      method.Equals("PUT", System.StringComparison.OrdinalIgnoreCase);
+
+            if (isModifyingRequest)
+            {
+                webRequest.SetRequestHeader("Prefer", "return=representation");
+            }
+            
             if (requiresAuth)
             {
                 string accessToken = PlayerPrefs.GetString(ACCESS_TOKEN_KEY, "");
@@ -46,9 +55,40 @@ public static class Request
             }
             else
             {
-                return webRequest.downloadHandler.text;
+                string response = webRequest.downloadHandler.text;
+                if (isModifyingRequest)
+                {
+                    // Para POST, PATCH, PUT, tomar solo el primer elemento del array
+                    return ExtractFirstElementFromJsonArray(response);
+                }
+                return response;
             }
         }
+    }
+
+    private static string ExtractFirstElementFromJsonArray(string jsonArray)
+    {
+        if (string.IsNullOrEmpty(jsonArray))
+        {
+            return "[]";
+        }
+
+        jsonArray = jsonArray.Trim();
+        if (jsonArray.StartsWith("[") && jsonArray.EndsWith("]"))
+        {
+            int firstObjectStart = jsonArray.IndexOf('{');
+            if (firstObjectStart != -1)
+            {
+                int firstObjectEnd = jsonArray.IndexOf('}', firstObjectStart);
+                if (firstObjectEnd != -1)
+                {
+                    return jsonArray.Substring(firstObjectStart, firstObjectEnd - firstObjectStart + 1);
+                }
+            }
+        }
+
+        Debug.LogWarning("Response is not a JSON array or is empty");
+        return "[]";
     }
 
     public static void SaveAccessToken(string accessToken)
