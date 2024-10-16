@@ -32,6 +32,55 @@ public class cards : MonoBehaviour
         }
     }
 
+    public async Task<string> GetCardsByProgressId()
+    {
+        string progressId = PlayerPrefs.GetString(PROGRESS_ID_KEY, "");
+        if (string.IsNullOrEmpty(progressId))
+        {
+            Debug.LogError("No progress ID found in storage.");
+            return null;
+        }
+
+        string url = $"{API_URL}?level_progress_id=eq.{progressId}&select=*";
+                Debug.Log(url);
+
+        string response = await Request.SendRequest(url, "GET", null);
+
+        if (response != null)
+        {
+            Debug.Log("Cards retrieved successfully. Response: " + response);
+            return response;
+        }
+        else
+        {
+            Debug.LogError("Failed to retrieve cards");
+            return null;
+        }
+    }
+
+    // Método para ser asignado al botón
+    public void OnGetCardsButtonClick()
+    {
+        StartCoroutine(GetCardsCoroutine());
+    }
+
+    private System.Collections.IEnumerator GetCardsCoroutine()
+    {
+        Task<string> task = GetCardsByProgressId();
+        yield return new WaitUntil(() => task.IsCompleted);
+
+        if (task.Exception != null)
+        {
+            Debug.LogError($"Error getting cards: {task.Exception.Message}");
+        }
+        else
+        {
+            string cards = task.Result;
+            Debug.Log($"Cards retrieved: {cards}");
+            // Aquí puedes procesar las cartas obtenidas si es necesario
+        }
+    }
+
     // Ejemplo de uso
     public async void CreateExampleCard()
     {
